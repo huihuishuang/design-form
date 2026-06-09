@@ -1,0 +1,1277 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>客户装修需求表</title>
+<style>
+:root {
+  --bg: #FBF9F6;
+  --card: #FFFFFF;
+  --primary: #B8956A;
+  --primary-dark: #9A7B54;
+  --text: #2C2416;
+  --text-secondary: #8B7355;
+  --border: #E8E0D5;
+  --accent: #D4A574;
+  --tag-bg: #F5F0E8;
+  --tag-active: #F0E6D8;
+  --tag-border-active: #B8956A;
+  --danger: #C55555;
+  --radius: 12px;
+  --shadow: 0 2px 12px rgba(44,36,22,0.06);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  padding-bottom: 80px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 顶部品牌条 */
+.header {
+  background: linear-gradient(135deg, #3C3226 0%, #5C4A3A 100%);
+  color: #FFF;
+  text-align: center;
+  padding: 28px 20px 24px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.header h1 { font-size: 20px; font-weight: 600; letter-spacing: 1px; margin-bottom: 4px; }
+.header p { font-size: 13px; opacity: 0.75; }
+
+/* 进度条 */
+.progress-wrap {
+  background: #FFF;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 88px;
+  z-index: 99;
+}
+.progress-bar {
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: var(--primary);
+  border-radius: 2px;
+  transition: width 0.4s ease;
+}
+.progress-text {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+.progress-text .step-name { font-weight: 500; }
+
+/* 表单步骤 */
+.container { max-width: 640px; margin: 0 auto; padding: 16px; }
+.step { display: none; animation: fadeSlide 0.35s ease; }
+.step.active { display: block; }
+@keyframes fadeSlide {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* 卡片 */
+.card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+}
+.card-title {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.card-title .icon { font-size: 20px; }
+.card-subtitle { font-size: 12px; color: var(--text-secondary); margin-bottom: 16px; }
+
+/* 字段 */
+.field { margin-bottom: 18px; }
+.field:last-child { margin-bottom: 0; }
+.label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+.label .optional { color: var(--text-secondary); font-weight: 400; font-size: 12px; }
+
+/* 文本输入 */
+.input, .textarea {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 15px;
+  color: var(--text);
+  background: #FAFAF8;
+  transition: border-color 0.2s;
+  font-family: inherit;
+}
+.input:focus, .textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  background: #FFF;
+}
+.textarea { min-height: 80px; resize: vertical; }
+
+/* 行内组合 */
+.row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.row .input { flex: 1; min-width: 80px; }
+.row .label-inline { font-size: 14px; white-space: nowrap; color: var(--text-secondary); }
+
+/* 标签选择器 (多选/单选) */
+.tag-group { display: flex; flex-wrap: wrap; gap: 8px; }
+.tag {
+  padding: 8px 16px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  background: var(--tag-bg);
+  cursor: pointer;
+  transition: all 0.2s;
+  user-select: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.tag:active { transform: scale(0.96); }
+.tag.selected {
+  background: var(--tag-active);
+  border-color: var(--tag-border-active);
+  color: var(--text);
+  font-weight: 500;
+}
+.tag.radio { border-radius: 20px; }
+.tag.radio.selected {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #FFF;
+}
+
+/* 上传区 */
+.upload-area {
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.2s;
+  background: #FAFAF8;
+}
+.upload-area:hover, .upload-area:active { border-color: var(--primary); }
+.upload-area .icon { font-size: 32px; margin-bottom: 8px; }
+.upload-area .hint { font-size: 13px; color: var(--text-secondary); }
+.upload-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+.upload-preview .thumb {
+  width: 72px;
+  height: 72px;
+  border-radius: 8px;
+  object-fit: cover;
+  border: 1px solid var(--border);
+}
+.upload-preview .thumb-wrap {
+  position: relative;
+  display: inline-block;
+}
+.thumb-wrap .remove {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 20px;
+  height: 20px;
+  background: var(--danger);
+  color: #FFF;
+  border-radius: 50%;
+  font-size: 12px;
+  line-height: 20px;
+  text-align: center;
+  cursor: pointer;
+  border: none;
+}
+
+/* 底部按钮 */
+.footer-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #FFF;
+  padding: 12px 20px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  gap: 10px;
+  z-index: 100;
+  max-width: 640px;
+  margin: 0 auto;
+}
+.btn {
+  flex: 1;
+  padding: 12px;
+  border-radius: 24px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+  text-align: center;
+}
+.btn:active { transform: scale(0.97); }
+.btn-prev {
+  background: var(--tag-bg);
+  color: var(--text-secondary);
+  flex: 0.4;
+}
+.btn-next {
+  background: var(--primary);
+  color: #FFF;
+  flex: 1;
+}
+.btn-submit {
+  background: #3C3226;
+  color: #FFF;
+  flex: 1;
+}
+.btn:disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* 成功页 */
+.success-page { text-align: center; padding: 60px 20px; }
+.success-page .icon { font-size: 64px; margin-bottom: 16px; }
+.success-page h2 { font-size: 22px; margin-bottom: 8px; }
+.success-page p { color: var(--text-secondary); font-size: 14px; }
+
+/* Toast */
+.toast {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #3C3226;
+  color: #FFF;
+  padding: 10px 24px;
+  border-radius: 20px;
+  font-size: 13px;
+  z-index: 999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+.toast.show { opacity: 1; }
+
+input[type="file"] { display: none; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>客户装修需求表</h1>
+  <p>请认真填写，我们将为您量身定制设计方案</p>
+</div>
+
+<div class="progress-wrap">
+  <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+  <div class="progress-text">
+    <span class="step-name" id="stepName">基本情况</span>
+    <span id="stepNum">1/7</span>
+  </div>
+</div>
+
+<div class="container" id="formContainer">
+  <!-- 动态生成表单步骤 -->
+</div>
+
+<div class="footer-bar" id="footerBar">
+  <button class="btn btn-prev" id="btnPrev" onclick="prevStep()">上一步</button>
+  <button class="btn btn-next" id="btnNext" onclick="nextStep()">下一步</button>
+  <button class="btn btn-submit" id="btnSubmit" onclick="submitForm()" style="display:none;">提交需求表</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ========== Supabase 配置 ==========
+const SUPABASE_URL = 'https://xxudurgiwtgsxrprnlht.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_IMGPsOn6Dcqlo6SFa8ArEw_3a7mWJnv';
+let supabase = null;
+
+// 异步加载 Supabase SDK，不阻塞表单
+(function loadSupabase() {
+  var s = document.createElement('script');
+  s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+  s.onload = function() {
+    try {
+      supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      console.log('Supabase 已连接');
+    } catch(e) {
+      console.warn('Supabase 初始化失败:', e);
+    }
+  };
+  s.onerror = function() {
+    console.warn('Supabase CDN 加载失败，表单仍可正常使用，但提交功能暂不可用');
+  };
+  document.head.appendChild(s);
+})();
+
+// ========== 表单数据 ==========
+let formData = {
+  // 上传的图片文件
+  brought_items_photos_files: [],
+  reference_photos_files: [],
+  // 预览 URL
+  brought_items_photos_preview: [],
+  reference_photos_preview: []
+};
+let currentStep = 0;
+const totalSteps = 7;
+
+// ========== 步骤定义 ==========
+const steps = [
+  { name: '基本情况', fields: 'step1' },
+  { name: '空间与风格', fields: 'step2' },
+  { name: '舒适家居', fields: 'step3' },
+  { name: '玄关·客厅·餐厅', fields: 'step4' },
+  { name: '厨房·主卧', fields: 'step5' },
+  { name: '次卧·儿童房·书房', fields: 'step6' },
+  { name: '阳台·其他', fields: 'step7' }
+];
+
+// ========== 渲染表单 ==========
+function renderForm() {
+  const container = document.getElementById('formContainer');
+  container.innerHTML = `
+    <!-- Step 1: 基本情况 -->
+    <div class="step active" data-step="0">
+      <div class="card">
+        <div class="card-title"><span class="icon">👤</span>个人信息</div>
+        <div class="field">
+          <label class="label">姓名 <span style="color:var(--danger)">*</span></label>
+          <div class="row">
+            <input class="input" id="name" placeholder="请输入姓名" style="flex:1">
+            <span class="tag radio" data-field="gender" data-value="先生" onclick="selectOne(this)">先生</span>
+            <span class="tag radio" data-field="gender" data-value="女士" onclick="selectOne(this)">女士</span>
+          </div>
+        </div>
+        <div class="row">
+          <div class="field" style="flex:1;margin-bottom:0">
+            <label class="label">年龄</label>
+            <input class="input" id="age" type="number" placeholder="岁" min="1" max="120">
+          </div>
+          <div class="field" style="flex:2;margin-bottom:0">
+            <label class="label">职业</label>
+            <input class="input" id="occupation" placeholder="请输入职业">
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="icon">👨‍👩‍👧‍👦</span>未来常驻人员</div>
+        <div class="tag-group" data-field="residents">
+          <span class="tag" data-value="父母" onclick="toggleTag(this)">父母</span>
+          <span class="tag" data-value="爱人" onclick="toggleTag(this)">爱人</span>
+          <span class="tag" data-value="儿女" onclick="toggleTag(this)">儿女</span>
+          <span class="tag" data-value="亲属" onclick="toggleTag(this)">亲属</span>
+        </div>
+        <div class="field" style="margin-top:8px;margin-bottom:0">
+          <input class="input" id="residents_other" placeholder="其他（请填写）">
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="icon">🐾</span>宠物饲养情况</div>
+        <div class="tag-group" data-field="pets">
+          <span class="tag" data-value="猫" onclick="toggleTag(this)">猫</span>
+          <span class="tag" data-value="狗" onclick="toggleTag(this)">狗</span>
+        </div>
+        <div class="field" style="margin-top:8px;margin-bottom:0">
+          <input class="input" id="pets_other" placeholder="其他宠物（请填写）">
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2: 空间与风格 -->
+    <div class="step" data-step="1">
+      <div class="card">
+        <div class="card-title"><span class="icon">🏠</span>空间分配</div>
+        <div class="field">
+          <label class="label">希望保留的卧室数量</label>
+          <div class="tag-group">
+            <span class="tag radio" data-field="bedroom_count" data-value="一间" onclick="selectOne(this)">一间</span>
+            <span class="tag radio" data-field="bedroom_count" data-value="二间" onclick="selectOne(this)">二间</span>
+            <span class="tag radio" data-field="bedroom_count" data-value="三间" onclick="selectOne(this)">三间</span>
+            <span class="tag radio" data-field="bedroom_count" data-value="四间" onclick="selectOne(this)">四间</span>
+            <span class="tag radio" data-field="bedroom_count" data-value="更多" onclick="selectOne(this)">更多</span>
+          </div>
+          <input class="input" id="bedroom_count_other" placeholder="请填写具体间数" style="margin-top:8px">
+        </div>
+        <div class="field" style="margin-bottom:0">
+          <label class="label">希望拥有的非刚需空间（可多选）</label>
+          <div class="tag-group" data-field="non_essential_spaces">
+            <span class="tag" data-value="书房" onclick="toggleTag(this)">书房</span>
+            <span class="tag" data-value="长辈房" onclick="toggleTag(this)">长辈房</span>
+            <span class="tag" data-value="客房" onclick="toggleTag(this)">客房</span>
+            <span class="tag" data-value="健身区" onclick="toggleTag(this)">健身区</span>
+            <span class="tag" data-value="储物间" onclick="toggleTag(this)">储物间</span>
+            <span class="tag" data-value="衣帽间" onclick="toggleTag(this)">衣帽间</span>
+            <span class="tag" data-value="储藏间（八百库）" onclick="toggleTag(this)">储藏间(八百库)</span>
+            <span class="tag" data-value="茶室" onclick="toggleTag(this)">茶室</span>
+          </div>
+          <input class="input" id="non_essential_spaces_other" placeholder="其他空间（请填写）" style="margin-top:8px">
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="icon">🎨</span>风格意向（可多选）</div>
+        <div class="tag-group" data-field="style_preferences">
+          <span class="tag" data-value="现代" onclick="toggleTag(this)">现代</span>
+          <span class="tag" data-value="新中式" onclick="toggleTag(this)">新中式</span>
+          <span class="tag" data-value="极简" onclick="toggleTag(this)">极简</span>
+          <span class="tag" data-value="美式" onclick="toggleTag(this)">美式</span>
+          <span class="tag" data-value="意式" onclick="toggleTag(this)">意式</span>
+          <span class="tag" data-value="轻法式" onclick="toggleTag(this)">轻法式</span>
+          <span class="tag" data-value="奶油风" onclick="toggleTag(this)">奶油风</span>
+          <span class="tag" data-value="中古风" onclick="toggleTag(this)">中古风</span>
+          <span class="tag" data-value="日式" onclick="toggleTag(this)">日式</span>
+        </div>
+        <div class="field" style="margin-top:8px;margin-bottom:0">
+          <input class="input" id="style_other" placeholder="其他风格（请填写）">
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="icon">🎭</span>美学系统 — 整体环境配色</div>
+        <div class="tag-group" data-field="color_scheme">
+          <span class="tag radio" data-value="冷色" onclick="selectOne(this)">冷色</span>
+          <span class="tag radio" data-value="暖色" onclick="selectOne(this)">暖色</span>
+          <span class="tag radio" data-value="中性色" onclick="selectOne(this)">中性色</span>
+          <span class="tag radio" data-value="奶油色系" onclick="selectOne(this)">奶油色系</span>
+          <span class="tag radio" data-value="暗黑系" onclick="selectOne(this)">暗黑系</span>
+          <span class="tag radio" data-value="色彩跳跃系" onclick="selectOne(this)">色彩跳跃系</span>
+        </div>
+        <input class="input" id="color_scheme_other" placeholder="其他配色（请填写）" style="margin-top:8px">
+      </div>
+    </div>
+
+    <!-- Step 3: 舒适家居系统 -->
+    <div class="step" data-step="2">
+      <div class="card">
+        <div class="card-title"><span class="icon">🧱</span>墙面材质喜好（可多选）</div>
+        <div class="tag-group" data-field="wall_materials">
+          <span class="tag" data-value="乳胶漆" onclick="toggleTag(this)">乳胶漆</span>
+          <span class="tag" data-value="艺术涂料" onclick="toggleTag(this)">艺术涂料</span>
+          <span class="tag" data-value="墙纸墙布" onclick="toggleTag(this)">墙纸墙布</span>
+          <span class="tag" data-value="微水泥" onclick="toggleTag(this)">微水泥</span>
+        </div>
+        <div class="field" style="margin-top:8px;margin-bottom:0">
+          <input class="input" id="wall_materials_other" placeholder="其他墙面材质">
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="icon">🪵</span>地面材质喜好</div>
+        <div class="tag-group">
+          <span class="tag radio" data-field="floor_material" data-value="全屋地砖" onclick="selectOne(this)">全屋地砖</span>
+          <span class="tag radio" data-field="floor_material" data-value="客餐厅地砖+卧室地板" onclick="selectOne(this)">客餐厅地砖+卧室地板</span>
+          <span class="tag radio" data-field="floor_material" data-value="全屋地板" onclick="selectOne(this)">全屋地板</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="icon">🧹</span>清洁系统（可多选）</div>
+        <div class="tag-group" data-field="cleaning_systems">
+          <span class="tag" data-value="扫地机器人" onclick="toggleTag(this)">扫地机器人</span>
+          <span class="tag" data-value="手持式洗地机" onclick="toggleTag(this)">手持式洗地机</span>
+          <span class="tag" data-value="挂烫机" onclick="toggleTag(this)">挂烫机</span>
+          <span class="tag" data-value="吸尘器" onclick="toggleTag(this)">吸尘器</span>
+          <span class="tag" data-value="中央吸尘" onclick="toggleTag(this)">中央吸尘</span>
+          <span class="tag" data-value="增加壁挂式洗衣机" onclick="toggleTag(this)">增加壁挂式洗衣机</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="icon">❄️</span>空调 / 供暖系统（可多选）</div>
+        <div class="tag-group" data-field="ac_heating">
+          <span class="tag" data-value="中央空调" onclick="toggleTag(this)">中央空调</span>
+          <span class="tag" data-value="风管机" onclick="toggleTag(this)">风管机</span>
+          <span class="tag" data-value="壁挂机" onclick="toggleTag(this)">壁挂机</span>
+          <span class="tag" data-value="柜机" onclick="toggleTag(this)">柜机</span>
+          <span class="tag" data-value="地暖" onclick="toggleTag(this)">地暖</span>
+          <span class="tag" data-value="暖气片" onclick="toggleTag(this)">暖气片</span>
+          <span class="tag" data-value="真火壁炉" onclick="toggleTag(this)">真火壁炉</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="icon">🌬️</span>新风系统</div>
+        <div class="tag-group">
+          <span class="tag radio" data-field="ventilation" data-value="全房新风系统" onclick="selectOne(this)">全房新风系统</span>
+          <span class="tag radio" data-field="ventilation" data-value="主要空间新风系统" onclick="selectOne(this)">主要空间新风系统</span>
+          <span class="tag radio" data-field="ventilation" data-value="否" onclick="selectOne(this)">否</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="icon">💧</span>水处理系统（可多选）</div>
+        <div class="tag-group" data-field="water_treatment">
+          <span class="tag" data-value="净水器" onclick="toggleTag(this)">净水器</span>
+          <span class="tag" data-value="前置过滤" onclick="toggleTag(this)">前置过滤</span>
+          <span class="tag" data-value="直饮机" onclick="toggleTag(this)">直饮机</span>
+          <span class="tag" data-value="中央净水系统" onclick="toggleTag(this)">中央净水系统</span>
+          <span class="tag" data-value="中央软水系统" onclick="toggleTag(this)">中央软水系统</span>
+          <span class="tag" data-value="中央纯水系统" onclick="toggleTag(this)">中央纯水系统</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="icon">🏡</span>智能家居（可多选）</div>
+        <div class="tag-group" data-field="smart_home">
+          <span class="tag" data-value="家庭网络系统(全屋WIFI)" onclick="toggleTag(this)">全屋WIFI</span>
+          <span class="tag" data-value="家居照明控制系统(无极调光、灯光律动等)" onclick="toggleTag(this)">照明控制(无极调光)</span>
+          <span class="tag" data-value="家庭安防控制系统" onclick="toggleTag(this)">安防控制</span>
+          <span class="tag" data-value="背景音乐家庭影院与多媒体系统" onclick="toggleTag(this)">背景音乐/家庭影院</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 4: 玄关·客厅·餐厅 -->
+    <div class="step" data-step="3">
+      <div class="card">
+        <div class="card-title"><span class="icon">🚪</span>玄关空间</div>
+        <div class="field">
+          <label class="label">玄关需要设置哪些功能（可多选）</label>
+          <div class="tag-group" data-field="entryway_functions">
+            <span class="tag" data-value="全身镜" onclick="toggleTag(this)">全身镜</span>
+            <span class="tag" data-value="烘鞋器" onclick="toggleTag(this)">烘鞋器</span>
+          </div>
+          <input class="input" id="entryway_functions_other" placeholder="其他功能（请填写）" style="margin-top:8px">
+        </div>
+        <div class="field">
+          <label class="label">玄关主要会储藏哪些物品（可多选）</label>
+          <div class="tag-group" data-field="entryway_storage">
+            <span class="tag" data-value="鞋子" onclick="toggleTag(this)">鞋子</span>
+            <span class="tag" data-value="包" onclick="toggleTag(this)">包</span>
+            <span class="tag" data-value="衣服" onclick="toggleTag(this)">衣服</span>
+            <span class="tag" data-value="小物品收纳（雨伞、钥匙、口罩等）" onclick="toggleTag(this)">小物品收纳</span>
+            <span class="tag" data-value="购物袋" onclick="toggleTag(this)">购物袋</span>
+            <span class="tag" data-value="工具" onclick="toggleTag(this)">工具</span>
+            <span class="tag" data-value="运动设备" onclick="toggleTag(this)">运动设备</span>
+          </div>
+        </div>
+        <div class="field" style="margin-bottom:0">
+          <label class="label">是否介意入门能够直观全室</label>
+          <div class="tag-group">
+            <span class="tag radio" data-field="entryway_privacy" data-value="介意" onclick="selectOne(this)">介意</span>
+            <span class="tag radio" data-field="entryway_privacy" data-value="无所谓" onclick="selectOne(this)">无所谓</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="icon">🛋️</span>客厅空间</div>
+        <div class="field">
+          <label class="label">客厅的主要功能（可多选）</label>
+          <div class="tag-group" data-field="living_functions">
+            <span class="tag" data-value="家人休息" onclick="toggleTag(this)">家人休息</span>
+            <span class="tag" data-value="看电视" onclick="toggleTag(this)">看电视</span>
+            <span class="tag" data-value="听音乐" onclick="toggleTag(this)">听音乐</span>
+            <span class="tag" data-value="孩童玩耍" onclick="toggleTag(this)">孩童玩耍</span>
+          </div>
+          <input class="input" id="living_functions_other" placeholder="其他功能（请填写）" style="margin-top:8px">
+        </div>
+        <div class="row">
+          <div class="field" style="flex:1;margin-bottom:0">
+            <label class="label">接待客人频率</label>
+            <div class="tag-group">
+              <span class="tag radio" data-field="living_guest_frequency" data-value="偶尔" onclick="selectOne(this)">偶尔</span>
+              <span class="tag radio" data-field="living_guest_frequency" data-value="经常" onclick="selectOne(this)">经常</span>
+              <span class="tag radio" data-field="living_guest_frequency" data-value="基本不接待" onclick="selectOne(this)">基本不接待</span>
+            </div>
+          </div>
+          <div class="field" style="flex:0.6;margin-bottom:0">
+            <label class="label">接待人数约</label>
+            <input class="input" id="living_guest_count" type="number" placeholder="人" min="0">
+          </div>
+        </div>
+        <div class="field">
+          <label class="label">是否希望与餐厅合为一体</label>
+          <div class="tag-group">
+            <span class="tag radio" data-field="living_dining_combined" data-value="true" onclick="selectOne(this)">是</span>
+            <span class="tag radio" data-field="living_dining_combined" data-value="false" onclick="selectOne(this)">否</span>
+          </div>
+        </div>
+        <div class="field">
+          <label class="label">客人来家中聚会主要活动（可多选）</label>
+          <div class="tag-group" data-field="living_guest_activities">
+            <span class="tag" data-value="聊天" onclick="toggleTag(this)">聊天</span>
+            <span class="tag" data-value="Party" onclick="toggleTag(this)">Party</span>
+            <span class="tag" data-value="亲友聚餐" onclick="toggleTag(this)">亲友聚餐</span>
+          </div>
+        </div>
+        <div class="field">
+          <label class="label">是否接受不以电视为中心的去客厅化设计</label>
+          <div class="tag-group">
+            <span class="tag radio" data-field="living_no_tv_design" data-value="true" onclick="selectOne(this)">是</span>
+            <span class="tag radio" data-field="living_no_tv_design" data-value="false" onclick="selectOne(this)">否</span>
+          </div>
+        </div>
+        <div class="field" style="margin-bottom:0">
+          <label class="label">是否有钢琴或其他乐器需要摆放</label>
+          <div class="tag-group">
+            <span class="tag radio" data-field="living_instruments" data-value="true" onclick="selectOne(this)">是</span>
+            <span class="tag radio" data-field="living_instruments" data-value="false" onclick="selectOne(this)">否</span>
+          </div>
+          <input class="input" id="living_instruments_other" placeholder="乐器类型（请填写）" style="margin-top:8px">
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="icon">🍽️</span>餐厅空间</div>
+        <div class="field">
+          <label class="label">餐桌类型希望是</label>
+          <div class="tag-group">
+            <span class="tag radio" data-field="dining_table_type" data-value="圆桌" onclick="selectOne(this)">圆桌</span>
+            <span class="tag radio" data-field="dining_table_type" data-value="长方桌" onclick="selectOne(this)">长方桌</span>
+            <span class="tag radio" data-field="dining_table_type" data-value="岛台+餐桌" onclick="selectOne(this)">岛台+餐桌</span>
+          </div>
+        </div>
+        <div class="field">
+          <label class="label">是否需要在餐厅看电视</label>
+          <div class="tag-group">
+            <span class="tag radio" data-field="dining_tv" data-value="true" onclick="selectOne(this)">是</span>
+            <span class="tag radio" data-field="dining_tv" data-value="false" onclick="selectOne(this)">否</span>
+          </div>
+        </div>
+        <div class="field" style="margin-bottom:0">
+          <label class="label">餐边柜希望的功能（可多选）</label>
+          <div class="tag-group" data-field="dining_sideboard">
+            <span class="tag" data-value="咖啡机" onclick="toggleTag(this)">咖啡机</span>
+            <span class="tag" data-value="操作台面" onclick="toggleTag(this)">操作台面</span>
+            <span class="tag" data-value="饮水机" onclick="toggleTag(this)">饮水机</span>
+          </div>
+          <input class="input" id="dining_sideboard_other" placeholder="其他功能（请填写）" style="margin-top:8px">
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 5: 厨房·主卧 -->
+    <div class="step" data-step="4">
+      <div class="card">
+        <div class="card-title"><span class="icon">🍳</span>厨房空间</div>
+        <div class="field">
+          <label class="label">计划配置哪些电器设备（可多选）</label>
+          <div class="tag-group" data-field="kitchen_appliances">
+            <span class="tag" data-value="微波炉" onclick="toggleTag(this)">微波炉</span>
+            <span class="tag" data-value="烤箱" onclick="toggleTag(this)">烤箱</span>
+            <span class="tag" data-value="蒸箱" onclick="toggleTag(this)">蒸箱</span>
+            <span class="tag" data-value="电烤箱" onclick="toggleTag(this)">电烤箱</span>
+            <span class="tag" data-value="消毒柜" onclick="toggleTag(this)">消毒柜</span>
+            <span class="tag" data-value="垃圾处理器" onclick="toggleTag(this)">垃圾处理器</span>
+            <span class="tag" data-value="洗碗机" onclick="toggleTag(this)">洗碗机</span>
+            <span class="tag" data-value="集成灶" onclick="toggleTag(this)">集成灶</span>
+            <span class="tag" data-value="净水器" onclick="toggleTag(this)">净水器</span>
+            <span class="tag" data-value="厨房空调" onclick="toggleTag(this)">厨房空调</span>
+          </div>
+        </div>
+        <div class="field">
+          <label class="label">冰箱容量需求</label>
+          <div class="tag-group">
+            <span class="tag radio" data-field="kitchen_fridge" data-value="单开门" onclick="selectOne(this)">单开门</span>
+            <span class="tag radio" data-field="kitchen_fridge" data-value="双开门" onclick="selectOne(this)">双开门</span>
+          </div>
+        </div>
+        <div class="field">
+          <label class="label">家庭开伙频率</label>
+          <div class="tag-group">
+            <span class="tag radio" data-field="kitchen_cook_frequency" data-value="每天" onclick="selectOne(this)">每天</span>
+            <span class="tag radio" data-field="kitchen_cook_frequency" data-value="周末" onclick="selectOne(this)">周末</span>
+            <span class="tag radio" data-field="kitchen_cook_frequency" data-value="偶尔" onclick="selectOne(this)">偶尔</span>
+            <span class="tag radio" data-field="kitchen_cook_frequency" data-value="基本不" onclick="selectOne(this)">基本不</span>
+          </div>
+        </div>
+        <div class="field" style="margin-bottom:0">
+          <label class="label">是否接受开放式厨房</label>
+          <div class="tag-group">
+            <span class="tag radio" data-field="kitchen_open" data-value="true" onclick="selectOne(this)">是</span>
+            <span class="tag radio" data-field="kitchen_open" data-value="false" onclick="selectOne(this)">否</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="icon">🛏️</span>主卧室空间</div>
+        <div class="field">
+          <label class="label">对床的尺寸有何要求</label>
+          <div class="tag-group">
+            <span class="tag radio" data-field="master_bed_size" data-value="1.5x2.0" onclick="selectOne(this)">1.5×2.0</span>
+            <span class="tag radio" data-field="master_bed_size" data-value="1.8x2.0" onclick="selectOne(this)">1.8×2.0</span>
+            <span class="tag radio" data-field="master_bed_size" data-value="2x2.0" onclick="selectOne(this)">2.0×2.0</span>
+            <span class="tag radio" data-field="master_bed_size" data-value="2.2x2.0" onclick="selectOne(this)">2.2×2.0</span>
+          </div>
+        </div>
+        <div class="field">
+          <label class="label">床的样式及形式</label>
+          <div class="tag-group">
+            <span class="tag radio" data-field="master_bed_style" data-value="悬浮床（无床头）" onclick="selectOne(this)">悬浮床(无床头)</span>
+            <span class="tag radio" data-field="master_bed_style" data-value="软包床头" onclick="selectOne(this)">软包床头</span>
+            <span class="tag radio" data-field="master_bed_style" data-value="落地式" onclick="selectOne(this)">落地式</span>
+          </div>
+        </div>
+        <div class="field">
+          <label class="label">是否有在床上阅读的习惯</label>
+          <div class="tag-group">
+            <span class="tag radio" data-field="master_reading" data-value="true" onclick="selectOne(this)">是</span>
+            <span class="tag radio" data-field="master_reading" data-value="false" onclick="selectOne(this)">否</span>
+          </div>
+        </div>
+        <div class="field">
+          <label class="label">是否需要梳妆台</label>
+          <div class="tag-group">
+            <span class="tag radio" data-field="master_dressing_table" data-value="true" onclick="selectOne(this)">是</span>
+            <span class="tag radio" data-field="master_dressing_table" data-value="false" onclick="selectOne(this)">否</span>
+          </div>
+        </div>
+        <div class="field">
+          <label class="label">是否需要衣帽间</label>
+          <div class="tag-group">
+            <span class="tag radio" data-field="master_closet" data-value="必须" onclick="selectOne(this)">必须</span>
+            <span class="tag radio" data-field="master_closet" data-value="不强求" onclick="selectOne(this)">不强求</span>
+          </div>
+        </div>
+        <div class="field">
+          <label class="label">是否有在卫生间梳妆、护肤的习惯</label>
+          <div class="tag-group">
+            <span class="tag radio" data-field="master_bathroom_grooming" data-value="true" onclick="selectOne(this)">是</span>
+            <span class="tag radio" data-field="master_bathroom_grooming" data-value="false" onclick="selectOne(this)">否</span>
+          </div>
+        </div>
+        <div class="field">
+          <label class="label">是否有在主卧泡澡的需求</label>
+          <div class="tag-group">
+            <span class="tag radio" data-field="master_bathtub" data-value="true" onclick="selectOne(this)">是</span>
+            <span class="tag radio" data-field="master_bathtub" data-value="false" onclick="selectOne(this)">否</span>
+          </div>
+        </div>
+        <div class="field">
+          <label class="label">是否需要视听设备（可多选）</label>
+          <div class="tag-group" data-field="master_av">
+            <span class="tag" data-value="投影" onclick="toggleTag(this)">投影</span>
+            <span class="tag" data-value="背景音乐" onclick="toggleTag(this)">背景音乐</span>
+          </div>
+          <input class="input" id="master_av_other" placeholder="其他设备" style="margin-top:8px">
+        </div>
+        <div class="field" style="margin-bottom:0">
+          <label class="label">是否需要水吧</label>
+          <div class="tag-group">
+            <span class="tag radio" data-field="master_water_bar" data-value="true" onclick="selectOne(this)">是</span>
+            <span class="tag radio" data-field="master_water_bar" data-value="false" onclick="selectOne(this)">否</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 6: 次卧·儿童房·书房 -->
+    <div class="step" data-step="5">
+      <div class="card">
+        <div class="card-title"><span class="icon">🛌</span>次卧空间</div>
+        <div class="field">
+          <label class="label">房间的使用功能</label>
+          <div class="tag-group">
+            <span class="tag radio" data-field="guest_function" data-value="临时客房" onclick="selectOne(this)">临时客房</span>
+            <span class="tag radio" data-field="guest_function" data-value="老人" onclick="selectOne(this)">老人</span>
+            <span class="tag radio" data-field="guest_function" data-value="子女房" onclick="selectOne(this)">子女房</span>
+            <span class="tag radio" data-field="guest_function" data-value="保姆" onclick="selectOne(this)">保姆</span>
+          </div>
+        </div>
+        <div class="field" style="margin-bottom:0">
+          <label class="label">希望配置哪些家具（可多选）</label>
+          <div class="tag-group" data-field="guest_furniture">
+            <span class="tag" data-value="电脑桌" onclick="toggleTag(this)">电脑桌</span>
+            <span class="tag" data-value="写字台" onclick="toggleTag(this)">写字台</span>
+            <span class="tag" data-value="书柜" onclick="toggleTag(this)">书柜</span>
+            <span class="tag" data-value="梳妆台" onclick="toggleTag(this)">梳妆台</span>
+            <span class="tag" data-value="双人床" onclick="toggleTag(this)">双人床</span>
+            <span class="tag" data-value="单人床" onclick="toggleTag(this)">单人床</span>
+            <span class="tag" data-value="双层床" onclick="toggleTag(this)">双层床</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="icon">🧸</span>儿童房</div>
+        <div class="field">
+          <label class="label">该房间的功能规划是否固定</label>
+          <div class="tag-group">
+            <span class="tag radio" data-field="children_fixed" data-value="true" onclick="selectOne(this)">是</span>
+            <span class="tag radio" data-field="children_fixed" data-value="false" onclick="selectOne(this)">否</span>
+          </div>
+        </div>
+        <div class="row">
+          <div class="field" style="flex:1;margin-bottom:0">
+            <label class="label">小朋友性别</label>
+            <div class="tag-group">
+              <span class="tag radio" data-field="children_gender" data-value="男孩" onclick="selectOne(this)">男孩</span>
+              <span class="tag radio" data-field="children_gender" data-value="女孩" onclick="selectOne(this)">女孩</span>
+            </div>
+          </div>
+          <div class="field" style="flex:1;margin-bottom:0">
+            <label class="label">年龄</label>
+            <input class="input" id="children_age" type="number" placeholder="岁" min="0" max="18">
+          </div>
+        </div>
+        <div class="field">
+          <label class="label">是否根据成长阶段做相应设计</label>
+          <div class="tag-group">
+            <span class="tag radio" data-field="children_growth_design" data-value="true" onclick="selectOne(this)">需要</span>
+            <span class="tag radio" data-field="children_growth_design" data-value="false" onclick="selectOne(this)">不需要</span>
+          </div>
+        </div>
+        <div class="field">
+          <label class="label">小朋友有什么爱好</label>
+          <input class="input" id="children_hobbies" placeholder="请填写爱好">
+        </div>
+        <div class="field">
+          <label class="label">是否需要画板</label>
+          <div class="tag-group">
+            <span class="tag radio" data-field="children_drawing_board" data-value="true" onclick="selectOne(this)">是</span>
+            <span class="tag radio" data-field="children_drawing_board" data-value="false" onclick="selectOne(this)">否</span>
+          </div>
+        </div>
+        <div class="field" style="margin-bottom:0">
+          <label class="label">是否需要书柜</label>
+          <div class="tag-group">
+            <span class="tag radio" data-field="children_bookcase" data-value="true" onclick="selectOne(this)">是</span>
+            <span class="tag radio" data-field="children_bookcase" data-value="false" onclick="selectOne(this)">否</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="icon">📚</span>书房空间</div>
+        <div class="field">
+          <label class="label">在书房的主要活动（可多选）</label>
+          <div class="tag-group" data-field="study_activities">
+            <span class="tag" data-value="读书写作" onclick="toggleTag(this)">读书写作</span>
+            <span class="tag" data-value="电竞" onclick="toggleTag(this)">电竞</span>
+            <span class="tag" data-value="会客品茶" onclick="toggleTag(this)">会客品茶</span>
+            <span class="tag" data-value="兼客房" onclick="toggleTag(this)">兼客房</span>
+            <span class="tag" data-value="辅导作业" onclick="toggleTag(this)">辅导作业</span>
+          </div>
+          <input class="input" id="study_activities_other" placeholder="其他活动（请填写）" style="margin-top:8px">
+        </div>
+        <div class="field">
+          <label class="label">预计几人同时使用书房</label>
+          <div class="tag-group">
+            <span class="tag radio" data-field="study_users" data-value="一人" onclick="selectOne(this)">一人</span>
+            <span class="tag radio" data-field="study_users" data-value="二人" onclick="selectOne(this)">二人</span>
+            <span class="tag radio" data-field="study_users" data-value="二人以上" onclick="selectOne(this)">二人以上</span>
+          </div>
+        </div>
+        <div class="field" style="margin-bottom:0">
+          <label class="label">是否接受开放式书房</label>
+          <div class="tag-group">
+            <span class="tag radio" data-field="study_open" data-value="true" onclick="selectOne(this)">是</span>
+            <span class="tag radio" data-field="study_open" data-value="false" onclick="selectOne(this)">否</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 7: 阳台·其他 -->
+    <div class="step" data-step="6">
+      <div class="card">
+        <div class="card-title"><span class="icon">🌿</span>阳台部分</div>
+        <div class="field">
+          <label class="label">是否需要封阳台</label>
+          <div class="tag-group">
+            <span class="tag radio" data-field="balcony_enclosed" data-value="true" onclick="selectOne(this)">是</span>
+            <span class="tag radio" data-field="balcony_enclosed" data-value="false" onclick="selectOne(this)">否</span>
+          </div>
+        </div>
+        <div class="field">
+          <label class="label">打算如何使用、规划（可多选）</label>
+          <div class="tag-group" data-field="balcony_uses">
+            <span class="tag" data-value="晒衣" onclick="toggleTag(this)">晒衣</span>
+            <span class="tag" data-value="健身" onclick="toggleTag(this)">健身</span>
+            <span class="tag" data-value="储物" onclick="toggleTag(this)">储物</span>
+            <span class="tag" data-value="养植花木" onclick="toggleTag(this)">养植花木</span>
+            <span class="tag" data-value="兼书房" onclick="toggleTag(this)">兼书房</span>
+          </div>
+        </div>
+        <div class="field" style="margin-bottom:0">
+          <label class="label">是否接受阳台门拆除并与客厅连通</label>
+          <div class="tag-group">
+            <span class="tag radio" data-field="balcony_door_removed" data-value="true" onclick="selectOne(this)">是</span>
+            <span class="tag radio" data-field="balcony_door_removed" data-value="false" onclick="selectOne(this)">否</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="icon">📝</span>其他补充</div>
+        <div class="field">
+          <label class="label">是否有原有家具打算用在新房中</label>
+          <div class="tag-group">
+            <span class="tag radio" data-field="existing_furniture" data-value="true" onclick="selectOne(this)">是</span>
+            <span class="tag radio" data-field="existing_furniture" data-value="false" onclick="selectOne(this)">否</span>
+          </div>
+        </div>
+        <div class="field">
+          <label class="label">需要带到新家的东西（摆件、字画等）</label>
+          <textarea class="textarea" id="brought_items_desc" placeholder="请描述需要带到新家的物品"></textarea>
+        </div>
+        <div class="field">
+          <label class="label">物品照片（可多张）</label>
+          <div class="upload-area" onclick="document.getElementById('broughtUpload').click()">
+            <div class="icon">📷</div>
+            <div class="hint">点击上传物品照片</div>
+          </div>
+          <input type="file" id="broughtUpload" accept="image/*" multiple onchange="handleUpload(this, 'brought_items')" style="display:none">
+          <div class="upload-preview" id="broughtPreview"></div>
+        </div>
+        <div class="field">
+          <label class="label">参考图 — 希望新家的样子（可多张）</label>
+          <div class="upload-area" onclick="document.getElementById('refUpload').click()">
+            <div class="icon">✨</div>
+            <div class="hint">点击上传网络参考图</div>
+          </div>
+          <input type="file" id="refUpload" accept="image/*" multiple onchange="handleUpload(this, 'reference')" style="display:none">
+          <div class="upload-preview" id="refPreview"></div>
+        </div>
+        <div class="field" style="margin-bottom:0">
+          <label class="label">其他想说的话</label>
+          <textarea class="textarea" id="extra_notes" placeholder="任何想补充的内容..."></textarea>
+        </div>
+      </div>
+
+      <div class="card" style="background:linear-gradient(135deg, #FBF7F2, #F7F2EA); border-color:#E0D5C5;">
+        <div style="font-size:13px;color:var(--text-secondary);line-height:1.8;">
+          <p>亲爱的客户，非常感谢您耐心写下对家的每一个期待。我们会像打造自己的家一样，珍视您的每一个想法与偏好，您提供的所有信息我们将严格保密。期待和您一起，把想象中的家变成现实！</p>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// ========== 标签选择逻辑 ==========
+function toggleTag(el) {
+  el.classList.toggle('selected');
+  collectMultiSelect(el.parentElement);
+}
+
+function selectOne(el) {
+  const group = el.parentElement;
+  group.querySelectorAll('.tag').forEach(t => t.classList.remove('selected'));
+  el.classList.add('selected');
+  const field = group.dataset.field;
+  if (field) formData[field] = el.dataset.value;
+}
+
+function collectMultiSelect(group) {
+  const field = group.dataset.field;
+  if (!field) return;
+  const selected = [];
+  group.querySelectorAll('.tag.selected').forEach(t => selected.push(t.dataset.value));
+  formData[field] = selected;
+}
+
+// ========== 图片上传 ==========
+function handleUpload(input, type) {
+  const files = Array.from(input.files);
+  const key = type === 'brought_items' ? 'brought_items' : 'reference';
+  const previewKey = key + '_preview';
+  const previewDiv = document.getElementById(type === 'brought_items' ? 'broughtPreview' : 'refPreview');
+
+  files.forEach(file => {
+    formData[key + '_files'].push(file);
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      formData[previewKey].push(e.target.result);
+      renderPreviews(previewDiv, formData[previewKey], previewKey, key + '_files');
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function renderPreviews(container, previews, previewKey, filesKey) {
+  container.innerHTML = previews.map((url, i) => `
+    <div class="thumb-wrap">
+      <img class="thumb" src="${url}" alt="预览">
+      <button class="remove" onclick="removePreview('${previewKey}','${filesKey}',${i})">×</button>
+    </div>
+  `).join('');
+}
+
+function removePreview(previewKey, filesKey, index) {
+  formData[previewKey].splice(index, 1);
+  formData[filesKey].splice(index, 1);
+  const divId = filesKey === 'brought_items_files' ? 'broughtPreview' : 'refPreview';
+  renderPreviews(document.getElementById(divId), formData[previewKey], previewKey, filesKey);
+}
+
+// ========== 步骤导航 ==========
+function updateUI() {
+  document.getElementById('progressFill').style.width = ((currentStep + 1) / totalSteps * 100) + '%';
+  document.getElementById('stepName').textContent = steps[currentStep].name;
+  document.getElementById('stepNum').textContent = (currentStep + 1) + '/' + totalSteps;
+
+  document.querySelectorAll('.step').forEach((s, i) => {
+    s.classList.toggle('active', i === currentStep);
+  });
+
+  const btnPrev = document.getElementById('btnPrev');
+  const btnNext = document.getElementById('btnNext');
+  const btnSubmit = document.getElementById('btnSubmit');
+
+  btnPrev.style.display = currentStep === 0 ? 'none' : '';
+  btnNext.style.display = currentStep === totalSteps - 1 ? 'none' : '';
+  btnSubmit.style.display = currentStep === totalSteps - 1 ? '' : 'none';
+
+  document.getElementById('formContainer').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function collectCurrentStep() {
+  // Collect all multi-select fields on current step
+  document.querySelectorAll('.step.active .tag-group[data-field]').forEach(group => {
+    if (group.querySelector('.tag.radio')) {
+      // Radio groups - already collected by selectOne
+    } else {
+      collectMultiSelect(group);
+    }
+  });
+  // Collect text inputs
+  document.querySelectorAll('.step.active .input, .step.active .textarea').forEach(input => {
+    if (input.id) formData[input.id] = input.value;
+  });
+}
+
+function nextStep() {
+  collectCurrentStep();
+  if (currentStep === 0) {
+    const name = document.getElementById('name').value.trim();
+    if (!name) { showToast('请填写姓名'); return; }
+  }
+  if (currentStep < totalSteps - 1) { currentStep++; updateUI(); }
+}
+
+function prevStep() {
+  collectCurrentStep();
+  if (currentStep > 0) { currentStep--; updateUI(); }
+}
+
+// ========== 收集全量数据 ==========
+function collectAllData() {
+  collectCurrentStep();
+
+  // 收集所有步骤中可能还未进入 DOM 的字段（存储在了 formData 中）
+  // 遍历所有步骤收集
+  document.querySelectorAll('.step').forEach(step => {
+    step.querySelectorAll('.input, .textarea').forEach(input => {
+      if (input.id && formData[input.id] === undefined) formData[input.id] = input.value;
+    });
+  });
+
+  // 递归收集所有 multi-select groups
+  document.querySelectorAll('.tag-group[data-field]').forEach(group => {
+    const field = group.dataset.field;
+    // 检查是否有 .tag.radio（单选组）
+    const hasRadio = group.querySelector('.tag.radio');
+    if (hasRadio) {
+      const selected = group.querySelector('.tag.radio.selected');
+      if (selected) formData[field] = selected.dataset.value;
+    } else {
+      // 多选组 - 确保已收集
+      const selected = [];
+      group.querySelectorAll('.tag.selected').forEach(t => selected.push(t.dataset.value));
+      if (selected.length > 0) formData[field] = selected;
+    }
+  });
+
+  // Build submission object
+  const data = {
+    name: formData.name || document.getElementById('name')?.value || '',
+    gender: formData.gender || null,
+    age: formData.age ? parseInt(formData.age) : (document.getElementById('age')?.value ? parseInt(document.getElementById('age').value) : null),
+    occupation: formData.occupation || document.getElementById('occupation')?.value || null,
+    residents: formData.residents || [],
+    residents_other: formData.residents_other || null,
+    pets: formData.pets || [],
+    pets_other: formData.pets_other || null,
+    bedroom_count: formData.bedroom_count || null,
+    bedroom_count_other: formData.bedroom_count_other || null,
+    non_essential_spaces: formData.non_essential_spaces || [],
+    non_essential_spaces_other: formData.non_essential_spaces_other || null,
+    style_preferences: formData.style_preferences || [],
+    style_other: formData.style_other || null,
+    color_scheme: formData.color_scheme ? [formData.color_scheme] : [],
+    color_scheme_other: formData.color_scheme_other || null,
+    wall_materials: formData.wall_materials || [],
+    wall_materials_other: formData.wall_materials_other || null,
+    floor_material: formData.floor_material || null,
+    cleaning_systems: formData.cleaning_systems || [],
+    ac_heating: formData.ac_heating || [],
+    ventilation: formData.ventilation || null,
+    water_treatment: formData.water_treatment || [],
+    smart_home: formData.smart_home || [],
+    entryway_functions: formData.entryway_functions || [],
+    entryway_functions_other: formData.entryway_functions_other || null,
+    entryway_storage: formData.entryway_storage || [],
+    entryway_privacy: formData.entryway_privacy || null,
+    living_functions: formData.living_functions || [],
+    living_functions_other: formData.living_functions_other || null,
+    living_guest_frequency: formData.living_guest_frequency || null,
+    living_guest_count: formData.living_guest_count ? parseInt(formData.living_guest_count) : null,
+    living_dining_combined: formData.living_dining_combined === 'true' ? true : formData.living_dining_combined === 'false' ? false : null,
+    living_guest_activities: formData.living_guest_activities || [],
+    living_no_tv_design: formData.living_no_tv_design === 'true' ? true : formData.living_no_tv_design === 'false' ? false : null,
+    living_instruments: formData.living_instruments === 'true' ? true : formData.living_instruments === 'false' ? false : null,
+    living_instruments_other: formData.living_instruments_other || null,
+    dining_table_type: formData.dining_table_type || null,
+    dining_tv: formData.dining_tv === 'true' ? true : formData.dining_tv === 'false' ? false : null,
+    dining_sideboard: formData.dining_sideboard || [],
+    dining_sideboard_other: formData.dining_sideboard_other || null,
+    kitchen_appliances: formData.kitchen_appliances || [],
+    kitchen_fridge: formData.kitchen_fridge || null,
+    kitchen_cook_frequency: formData.kitchen_cook_frequency || null,
+    kitchen_open: formData.kitchen_open === 'true' ? true : formData.kitchen_open === 'false' ? false : null,
+    master_bed_size: formData.master_bed_size || null,
+    master_bed_style: formData.master_bed_style || null,
+    master_reading: formData.master_reading === 'true' ? true : formData.master_reading === 'false' ? false : null,
+    master_dressing_table: formData.master_dressing_table === 'true' ? true : formData.master_dressing_table === 'false' ? false : null,
+    master_closet: formData.master_closet || null,
+    master_bathroom_grooming: formData.master_bathroom_grooming === 'true' ? true : formData.master_bathroom_grooming === 'false' ? false : null,
+    master_bathtub: formData.master_bathtub === 'true' ? true : formData.master_bathtub === 'false' ? false : null,
+    master_av: formData.master_av || [],
+    master_av_other: formData.master_av_other || null,
+    master_water_bar: formData.master_water_bar === 'true' ? true : formData.master_water_bar === 'false' ? false : null,
+    guest_function: formData.guest_function || null,
+    guest_furniture: formData.guest_furniture || [],
+    children_fixed: formData.children_fixed === 'true' ? true : formData.children_fixed === 'false' ? false : null,
+    children_gender: formData.children_gender || null,
+    children_age: formData.children_age ? parseInt(formData.children_age) : null,
+    children_growth_design: formData.children_growth_design === 'true' ? true : formData.children_growth_design === 'false' ? false : null,
+    children_hobbies: formData.children_hobbies || null,
+    children_drawing_board: formData.children_drawing_board === 'true' ? true : formData.children_drawing_board === 'false' ? false : null,
+    children_bookcase: formData.children_bookcase === 'true' ? true : formData.children_bookcase === 'false' ? false : null,
+    study_activities: formData.study_activities || [],
+    study_activities_other: formData.study_activities_other || null,
+    study_users: formData.study_users || null,
+    study_open: formData.study_open === 'true' ? true : formData.study_open === 'false' ? false : null,
+    balcony_enclosed: formData.balcony_enclosed === 'true' ? true : formData.balcony_enclosed === 'false' ? false : null,
+    balcony_uses: formData.balcony_uses || [],
+    balcony_door_removed: formData.balcony_door_removed === 'true' ? true : formData.balcony_door_removed === 'false' ? false : null,
+    existing_furniture: formData.existing_furniture === 'true' ? true : formData.existing_furniture === 'false' ? false : null,
+    brought_items_desc: formData.brought_items_desc || null,
+    extra_notes: formData.extra_notes || null
+  };
+
+  return data;
+}
+
+// ========== 上传图片到 Supabase Storage ==========
+async function uploadImages(files, bucket, folder) {
+  if (!supabase) { console.warn('Supabase 未初始化'); return []; }
+  const urls = [];
+  for (const file of files) {
+    const fileName = folder + '/' + Date.now() + '_' + Math.random().toString(36).slice(2, 8) + '_' + file.name;
+    const { data, error } = await supabase.storage.from(bucket).upload(fileName, file);
+    if (error) { console.error('Upload error:', error); continue; }
+    const { data: publicData } = supabase.storage.from(bucket).getPublicUrl(fileName);
+    urls.push(publicData.publicUrl);
+  }
+  return urls;
+}
+
+// ========== 提交表单 ==========
+async function submitForm() {
+  const data = collectAllData();
+
+  if (!data.name || !data.name.trim()) {
+    showToast('请至少填写姓名');
+    currentStep = 0;
+    updateUI();
+    return;
+  }
+
+  const btn = document.getElementById('btnSubmit');
+  btn.disabled = true;
+  btn.textContent = '提交中...';
+
+  try {
+    // 上传图片
+    let broughtUrls = [], refUrls = [];
+    if (formData.brought_items_files && formData.brought_items_files.length > 0) {
+      broughtUrls = await uploadImages(formData.brought_items_files, 'uploads', 'brought_items');
+    }
+    if (formData.reference_files && formData.reference_files.length > 0) {
+      refUrls = await uploadImages(formData.reference_files, 'uploads', 'reference');
+    }
+    data.brought_items_photos = broughtUrls;
+    data.reference_photos = refUrls;
+
+    if (!supabase) { showToast('数据库未连接，请检查配置'); btn.disabled = false; btn.textContent = '提交需求表'; return; }
+    const { error } = await supabase.from('submissions').insert([data]);
+    if (error) throw error;
+
+    // 显示成功页
+    document.getElementById('formContainer').innerHTML = `
+      <div class="success-page">
+        <div class="icon">🎉</div>
+        <h2>提交成功！</h2>
+        <p>感谢您的耐心填写<br>我们会认真对待每一条需求<br>尽快为您呈现设计方案</p>
+      </div>
+    `;
+    document.getElementById('footerBar').style.display = 'none';
+    document.querySelector('.progress-wrap').style.display = 'none';
+    document.getElementById('progressFill').style.width = '100%';
+    document.getElementById('stepNum').textContent = '完成';
+    document.getElementById('stepName').textContent = '提交成功';
+  } catch (err) {
+    console.error('Submit error:', err);
+    showToast('提交失败，请重试');
+    btn.disabled = false;
+    btn.textContent = '提交需求表';
+  }
+}
+
+// ========== Toast ==========
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2000);
+}
+
+// ========== 初始化 ==========
+renderForm();
+updateUI();
+</script>
+</body>
+</html>
