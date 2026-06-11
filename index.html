@@ -341,15 +341,17 @@ async function supabaseInsert(table, row) {
 
 // 上传文件到 Storage
 async function supabaseUpload(bucket, fileName, file) {
+  const fd = new FormData();
+  fd.append('file', file);
   const res = await fetch(SUPABASE_URL + '/storage/v1/object/' + bucket + '/' + fileName, {
     method: 'POST',
     headers: {
       'apikey': SUPABASE_ANON_KEY,
       'Authorization': 'Bearer ' + SUPABASE_ANON_KEY
     },
-    body: file
+    body: fd
   });
-  if (!res.ok) throw new Error('上传失败: ' + res.status + ' ' + (await res.text()));
+  if (!res.ok) throw new Error('上传失败 HTTP' + res.status + ': ' + (await res.text()));
   return SUPABASE_URL + '/storage/v1/object/public/' + bucket + '/' + fileName;
 }
 
@@ -1223,12 +1225,14 @@ function collectAllData() {
 async function uploadImages(files, bucket, folder) {
   const urls = [];
   for (const file of files) {
-    const fileName = folder + '/' + Date.now() + '_' + Math.random().toString(36).slice(2, 8) + '_' + file.name;
+    const safeName = file.name.replace(/[^\x00-\x7F]/g, '') || 'photo';
+    const fileName = folder + '/' + Date.now() + '_' + Math.random().toString(36).slice(2, 8) + '_' + safeName;
     try {
       const url = await supabaseUpload(bucket, fileName, file);
       urls.push(url);
     } catch(e) {
       console.error('Upload error:', e);
+      showToast('图片上传失败: ' + e.message);
     }
   }
   return urls;
