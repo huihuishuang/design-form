@@ -1014,7 +1014,7 @@ function selectOne(el) {
   const group = el.parentElement;
   group.querySelectorAll('.tag').forEach(t => t.classList.remove('selected'));
   el.classList.add('selected');
-  const field = group.dataset.field;
+  const field = el.dataset.field;
   if (field) formData[field] = el.dataset.value;
 }
 
@@ -1122,7 +1122,13 @@ function collectAllData() {
     });
   });
 
-  // 递归收集所有 multi-select groups
+  // 收集所有 radio 选中值（data-field 在 span 上非 group 上）
+  document.querySelectorAll('.tag.radio.selected').forEach(el => {
+    const field = el.dataset.field;
+    if (field) formData[field] = el.dataset.value;
+  });
+
+  // 收集所有 multi-select groups
   document.querySelectorAll('.tag-group[data-field]').forEach(group => {
     const field = group.dataset.field;
     // 检查是否有 .tag.radio（单选组）
