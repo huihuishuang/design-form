@@ -287,7 +287,7 @@ body {
 }
 .toast.show { opacity: 1; }
 
-input[type="file"] { display: none; }
+.file-hidden { width:0.1px; height:0.1px; opacity:0; overflow:hidden; position:absolute; z-index:-1; }
 </style>
 </head>
 <body>
@@ -970,20 +970,20 @@ function renderForm() {
         </div>
         <div class="field">
           <label class="label">物品照片（可多张）</label>
-          <label for="broughtUpload" class="upload-area">
+          <label class="upload-area">
             <div class="icon">📷</div>
             <div class="hint">点击上传物品照片</div>
+            <input type="file" id="broughtUpload" accept="image/*" multiple onchange="handleUpload(this, 'brought_items')" class="file-hidden">
           </label>
-          <input type="file" id="broughtUpload" accept="image/*" multiple onchange="handleUpload(this, 'brought_items')" style="display:none">
           <div class="upload-preview" id="broughtPreview"></div>
         </div>
         <div class="field">
           <label class="label">参考图 — 希望新家的样子（可多张）</label>
-          <label for="refUpload" class="upload-area">
+          <label class="upload-area">
             <div class="icon">✨</div>
             <div class="hint">点击上传网络参考图</div>
+            <input type="file" id="refUpload" accept="image/*" multiple onchange="handleUpload(this, 'reference')" class="file-hidden">
           </label>
-          <input type="file" id="refUpload" accept="image/*" multiple onchange="handleUpload(this, 'reference')" style="display:none">
           <div class="upload-preview" id="refPreview"></div>
         </div>
         <div class="field" style="margin-bottom:0">
