@@ -273,6 +273,198 @@ body {
   color: var(--text-secondary);
 }
 
+/* 编辑/删除按钮 */
+.btn-sm {
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+.btn-sm:active { transform: scale(0.95); }
+.btn-edit {
+  background: #F0E6D8;
+  color: var(--accent);
+}
+.btn-delete {
+  background: #FDE8E8;
+  color: var(--red);
+}
+
+/* 编辑弹窗 */
+.edit-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 200;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.2s;
+  overflow-y: auto;
+}
+.edit-modal {
+  background: #FFF;
+  border-radius: var(--radius);
+  max-width: 700px;
+  width: 100%;
+  padding: 24px;
+  position: relative;
+  margin: 20px 0;
+}
+.edit-modal h2 {
+  font-size: 18px;
+  margin-bottom: 16px;
+  padding-right: 30px;
+}
+.edit-modal .modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  font-size: 24px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-secondary);
+}
+.edit-section {
+  margin-bottom: 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.edit-section-title {
+  background: var(--tag-bg);
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent);
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  user-select: none;
+}
+.edit-section-title:hover { background: #EDE8DD; }
+.edit-section-body {
+  padding: 12px 14px;
+  display: none;
+}
+.edit-section-body.open { display: block; }
+.edit-field { margin-bottom: 12px; }
+.edit-field:last-child { margin-bottom: 0; }
+.edit-field label {
+  display: block;
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+.edit-field input, .edit-field textarea, .edit-field select {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--text);
+  background: #FAFAF8;
+}
+.edit-field input:focus, .edit-field textarea:focus, .edit-field select:focus {
+  outline: none;
+  border-color: var(--accent);
+  background: #FFF;
+}
+.edit-field textarea { min-height: 60px; resize: vertical; }
+.edit-photos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+.edit-photos .thumb-wrap {
+  position: relative;
+  display: inline-block;
+}
+.edit-photos .thumb-wrap img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+}
+.edit-photos .thumb-wrap .remove-photo {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 20px;
+  height: 20px;
+  background: var(--red);
+  color: #FFF;
+  border-radius: 50%;
+  font-size: 12px;
+  line-height: 20px;
+  text-align: center;
+  cursor: pointer;
+  border: none;
+}
+.edit-modal-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+  position: sticky;
+  bottom: 0;
+  background: #FFF;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+.edit-modal-actions .btn {
+  flex: 1;
+  padding: 12px;
+  border-radius: 24px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+.edit-modal-actions .btn-save {
+  background: var(--accent);
+  color: #FFF;
+}
+.edit-modal-actions .btn-cancel {
+  background: var(--tag-bg);
+  color: var(--text-secondary);
+}
+
+/* 确认对话框 */
+.confirm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 250;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.2s;
+}
+.confirm-box {
+  background: #FFF;
+  border-radius: var(--radius);
+  padding: 24px;
+  max-width: 360px;
+  width: 100%;
+  text-align: center;
+}
+.confirm-box p { margin-bottom: 20px; font-size: 15px; color: var(--text); }
+.confirm-box .btn-row { display: flex; gap: 10px; }
+.confirm-box .btn-row .btn { flex: 1; }
+
 @media (max-width: 640px) {
   .navbar { padding: 12px 14px; }
   .navbar h1 { font-size: 16px; }
@@ -310,37 +502,78 @@ body {
 
 <div class="toast" id="toast"></div>
 
+<!-- 编辑弹窗 -->
+<div class="edit-modal-overlay" id="editModal" style="display:none;">
+  <div class="edit-modal" id="editModalContent"></div>
+</div>
+
+<!-- 删除确认 -->
+<div class="confirm-overlay" id="confirmDialog" style="display:none;">
+  <div class="confirm-box">
+    <p><strong>确定要删除这条需求吗？</strong><br><span style="font-size:13px;color:var(--text-secondary)">此操作不可撤销</span></p>
+    <div class="btn-row">
+      <button class="btn btn-cancel" onclick="closeConfirm()">取消</button>
+      <button class="btn" style="background:var(--red);color:#FFF;" id="confirmDeleteBtn" onclick="executeDelete()">确认删除</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // ========== Supabase 配置 ==========
+// 直接调用 REST API，不依赖 CDN，国内可用
 const SUPABASE_URL = 'https://xxudurgiwtgsxrprnlht.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_IMGPsOn6Dcqlo6SFa8ArEw_3a7mWJnv';
-let supabase = null;
 
-(function loadSupabase() {
-  var s = document.createElement('script');
-  s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
-  s.onload = function() {
-    try {
-      supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-      console.log('Supabase 已连接，实时监控已启动');
-      setupRealtime();
-      loadData();
-    } catch(e) {
-      console.warn('Supabase 初始化失败:', e);
+// 查询 submissions 表
+async function supabaseSelect(table) {
+  const res = await fetch(SUPABASE_URL + '/rest/v1/' + table + '?select=*&order=created_at.desc', {
+    headers: {
+      'apikey': SUPABASE_ANON_KEY,
+      'Authorization': 'Bearer ' + SUPABASE_ANON_KEY
     }
-  };
-  s.onerror = function() {
-    console.warn('Supabase CDN 加载失败，请检查网络');
-  };
-  document.head.appendChild(s);
-})();
+  });
+  if (!res.ok) throw new Error('查询失败: ' + res.status);
+  return await res.json();
+}
+
+// 更新一条 submission
+async function supabaseUpdate(id, data) {
+  const res = await fetch(SUPABASE_URL + '/rest/v1/submissions?id=eq.' + id, {
+    method: 'PATCH',
+    headers: {
+      'apikey': SUPABASE_ANON_KEY,
+      'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=minimal'
+    },
+    body: JSON.stringify(data)
+  });
+  if (!res.ok) throw new Error('更新失败: ' + res.status);
+  return true;
+}
+
+// 删除一条 submission
+async function supabaseDelete(id) {
+  const res = await fetch(SUPABASE_URL + '/rest/v1/submissions?id=eq.' + id, {
+    method: 'DELETE',
+    headers: {
+      'apikey': SUPABASE_ANON_KEY,
+      'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+      'Prefer': 'return=minimal'
+    }
+  });
+  if (!res.ok) throw new Error('删除失败: ' + res.status);
+  return true;
+}
 
 let allSubmissions = [];
 let orderDesc = true;
+let lastMaxTime = null;  // 用于轮询增量数据
 
 // ========== 字段中文映射 ==========
 const fieldLabels = {
   name: '姓名', gender: '性别', age: '年龄', occupation: '职业',
+  renovation_address: '装修地址', house_area: '房屋面积',
   residents: '常驻人员', residents_other: '常驻人员-其他',
   pets: '宠物', pets_other: '宠物-其他',
   bedroom_count: '保留卧室数量', bedroom_count_other: '卧室数量-更多',
@@ -355,7 +588,7 @@ const fieldLabels = {
   water_treatment: '水处理系统',
   smart_home: '智能家居',
   entryway_functions: '玄关功能', entryway_functions_other: '玄关功能-其他',
-  entryway_storage: '玄关储物', entryway_privacy: '入门直观全室',
+  entryway_storage: '玄关储物', entryway_privacy: '入户直观全室',
   living_functions: '客厅功能', living_functions_other: '客厅功能-其他',
   living_guest_frequency: '接待频率', living_guest_count: '接待人数',
   living_dining_combined: '客餐厅一体', living_guest_activities: '聚会活动',
@@ -424,6 +657,8 @@ function renderCards(submissions) {
           </div>
         </div>
         <div class="right">
+          <button class="btn-sm btn-edit" onclick="event.stopPropagation();openEdit('${s.id}')">✏️ 编辑</button>
+          <button class="btn-sm btn-delete" onclick="event.stopPropagation();confirmDelete('${s.id}','${escapeHtml(s.name || '未填姓名')}')">🗑️</button>
           <span style="font-size:12px;color:var(--text-secondary)">#${idx + 1}</span>
           <span class="arrow" id="arrow_${s.id}">▼</span>
         </div>
@@ -437,7 +672,7 @@ function renderCards(submissions) {
 
 function renderDetail(s) {
   const sections = [
-    { title: '一、客户基本情况', fields: ['name','gender','age','occupation','residents','residents_other','pets','pets_other'] },
+    { title: '一、客户基本情况', fields: ['name','gender','age','occupation','renovation_address','house_area','residents','residents_other','pets','pets_other'] },
     { title: '二、空间分配与风格', fields: ['bedroom_count','bedroom_count_other','non_essential_spaces','non_essential_spaces_other','style_preferences','style_other','color_scheme','color_scheme_other'] },
     { title: '三、舒适家居系统', fields: ['wall_materials','wall_materials_other','floor_material','cleaning_systems','ac_heating','ventilation','water_treatment','smart_home'] },
     { title: '四、玄关·客厅·餐厅', fields: ['entryway_functions','entryway_functions_other','entryway_storage','entryway_privacy','living_functions','living_functions_other','living_guest_frequency','living_guest_count','living_dining_combined','living_guest_activities','living_no_tv_design','living_instruments','living_instruments_other','dining_table_type','dining_tv','dining_sideboard','dining_sideboard_other'] },
@@ -563,15 +798,14 @@ function exportCSV() {
 
 // ========== 加载数据 ==========
 async function loadData() {
-  if (!supabase) { console.warn('Supabase 未初始化'); return; }
-  const { data, error } = await supabase
-    .from('submissions')
-    .select('*')
-    .order('created_at', { ascending: false });
-
-  if (error) { console.error('Load error:', error); return; }
-  allSubmissions = data || [];
-  sortByDate();
+  try {
+    const data = await supabaseSelect('submissions');
+    allSubmissions = data || [];
+    if (data.length > 0) lastMaxTime = data[0].created_at;
+    sortByDate();
+  } catch(e) {
+    console.error('Load error:', e);
+  }
 }
 
 async function refreshData() {
@@ -580,21 +814,28 @@ async function refreshData() {
   showToast('数据已刷新');
 }
 
-// ========== 实时订阅 ==========
-function setupRealtime() {
-  if (!supabase) { console.warn('Supabase 未初始化'); return; }
-  supabase
-    .channel('submissions-changes')
-    .on('postgres_changes',
-      { event: 'INSERT', schema: 'public', table: 'submissions' },
-      (payload) => {
-        allSubmissions.unshift(payload.new);
+// ========== 轮询监听新提交（代替 WebSocket 实时推送）==========
+function setupPolling() {
+  setInterval(async () => {
+    try {
+      const res = await fetch(SUPABASE_URL + '/rest/v1/submissions?select=*&order=created_at.desc&limit=1', {
+        headers: {
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': 'Bearer ' + SUPABASE_ANON_KEY
+        }
+      });
+      if (!res.ok) return;
+      const rows = await res.json();
+      if (rows.length === 0) return;
+      const latest = rows[0];
+      // 检查是否有新数据
+      if (lastMaxTime && new Date(latest.created_at) > new Date(lastMaxTime)) {
+        allSubmissions.unshift(latest);
         const searchVal = document.getElementById('searchInput').value.trim();
         if (!searchVal) {
           renderCards(allSubmissions);
-          // Highlight new card
           setTimeout(() => {
-            const newCard = document.querySelector(`[data-id="${payload.new.id}"]`);
+            const newCard = document.querySelector(`[data-id="${latest.id}"]`);
             if (newCard) {
               newCard.classList.add('new-highlight');
               setTimeout(() => newCard.classList.remove('new-highlight'), 2500);
@@ -602,10 +843,238 @@ function setupRealtime() {
           }, 100);
         }
         document.getElementById('totalCount').textContent = allSubmissions.length;
-        showToast(`新需求！${payload.new.name || '未知客户'} 刚刚提交了需求表`);
+        showToast(`新需求！${latest.name || '未知客户'} 刚刚提交了需求表`);
       }
-    )
-    .subscribe();
+      lastMaxTime = latest.created_at;
+    } catch(e) { /* silent fail for polling */ }
+  }, 5000); // 每5秒检查一次
+}
+
+// ========== 编辑功能 ==========
+let pendingDeleteId = null;
+let editingSubmission = null;
+
+function toggleEditSection(el) {
+  el.nextElementSibling.classList.toggle('open');
+  el.querySelector('.toggle-icon').textContent =
+    el.nextElementSibling.classList.contains('open') ? '▾' : '▸';
+}
+
+function openEdit(id) {
+  editingSubmission = allSubmissions.find(s => s.id === id);
+  if (!editingSubmission) return;
+  const modal = document.getElementById('editModal');
+  modal.style.display = 'flex';
+  document.getElementById('editModalContent').innerHTML = generateEditForm(editingSubmission);
+}
+
+function closeEdit() {
+  document.getElementById('editModal').style.display = 'none';
+  editingSubmission = null;
+}
+
+// 关闭弹窗（点击遮罩）
+document.getElementById('editModal').addEventListener('click', function(e) {
+  if (e.target === this) closeEdit();
+});
+
+function generateEditForm(s) {
+  const editSections = [
+    { title: '一、客户基本情况', fields: ['name','gender','age','occupation','renovation_address','house_area','residents','residents_other','pets','pets_other'] },
+    { title: '二、空间分配与风格', fields: ['bedroom_count','bedroom_count_other','non_essential_spaces','non_essential_spaces_other','style_preferences','style_other','color_scheme','color_scheme_other'] },
+    { title: '三、舒适家居系统', fields: ['wall_materials','wall_materials_other','floor_material','cleaning_systems','ac_heating','ventilation','water_treatment','smart_home'] },
+    { title: '四、玄关·客厅·餐厅', fields: ['entryway_functions','entryway_functions_other','entryway_storage','entryway_privacy','living_functions','living_functions_other','living_guest_frequency','living_guest_count','living_dining_combined','living_guest_activities','living_no_tv_design','living_instruments','living_instruments_other','dining_table_type','dining_tv','dining_sideboard','dining_sideboard_other'] },
+    { title: '五、厨房·主卧', fields: ['kitchen_appliances','kitchen_fridge','kitchen_cook_frequency','kitchen_open','master_bed_size','master_bed_style','master_reading','master_dressing_table','master_closet','master_bathroom_grooming','master_bathtub','master_av','master_av_other','master_water_bar'] },
+    { title: '六、次卧·儿童房·书房', fields: ['guest_function','guest_furniture','children_fixed','children_gender','children_age','children_growth_design','children_hobbies','children_drawing_board','children_bookcase','study_activities','study_activities_other','study_users','study_open'] },
+    { title: '七、阳台·其他', fields: ['balcony_enclosed','balcony_uses','balcony_door_removed','existing_furniture','brought_items_desc','extra_notes'] }
+  ];
+
+  let html = `<h2>✏️ 编辑 — ${escapeHtml(s.name || '未填姓名')}</h2>
+  <button class="modal-close" onclick="closeEdit()">×</button>`;
+
+  for (const sec of editSections) {
+    let bodyHtml = '';
+    for (const field of sec.fields) {
+      const val = s[field];
+      const label = fieldLabels[field] || field;
+
+      // 跳过图片字段（单独处理）
+      if (field === 'brought_items_photos' || field === 'reference_photos') continue;
+
+      if (Array.isArray(val)) {
+        bodyHtml += `<div class="edit-field">
+          <label>${label}</label>
+          <input id="edit_${field}" value="${escapeHtml(val.join('、'))}" placeholder="多个用、分隔">
+        </div>`;
+      } else if (typeof val === 'boolean') {
+        bodyHtml += `<div class="edit-field">
+          <label>${label}</label>
+          <select id="edit_${field}">
+            <option value="">-</option>
+            <option value="true" ${val === true ? 'selected' : ''}>是</option>
+            <option value="false" ${val === false ? 'selected' : ''}>否</option>
+          </select>
+        </div>`;
+      } else if (field === 'created_at') {
+        // 不编辑创建时间
+      } else {
+        bodyHtml += `<div class="edit-field">
+          <label>${label}</label>
+          <input id="edit_${field}" value="${escapeHtml(val || '')}">
+        </div>`;
+      }
+    }
+    html += `<div class="edit-section">
+      <div class="edit-section-title" onclick="toggleEditSection(this)">
+        <span>${sec.title}</span><span class="toggle-icon">▸</span>
+      </div>
+      <div class="edit-section-body">${bodyHtml}</div>
+    </div>`;
+  }
+
+  // 图片管理
+  const broughtPhotos = s.brought_items_photos || [];
+  const refPhotos = s.reference_photos || [];
+  if (broughtPhotos.length > 0 || refPhotos.length > 0) {
+    let photoHtml = '';
+    if (broughtPhotos.length > 0) {
+      photoHtml += `<label style="font-size:12px;color:var(--text-secondary);margin-top:8px;display:block;">物品照片（点击 × 删除）</label>
+      <div class="edit-photos" id="editBroughtPhotos">${broughtPhotos.map((url, i) => `
+        <div class="thumb-wrap">
+          <img src="${url}" loading="lazy">
+          <button class="remove-photo" onclick="removeEditPhoto('${s.id}','brought_items_photos',${i})">×</button>
+        </div>`).join('')}</div>`;
+    }
+    if (refPhotos.length > 0) {
+      photoHtml += `<label style="font-size:12px;color:var(--text-secondary);margin-top:8px;display:block;">参考图片（点击 × 删除）</label>
+      <div class="edit-photos" id="editRefPhotos">${refPhotos.map((url, i) => `
+        <div class="thumb-wrap">
+          <img src="${url}" loading="lazy">
+          <button class="remove-photo" onclick="removeEditPhoto('${s.id}','reference_photos',${i})">×</button>
+        </div>`).join('')}</div>`;
+    }
+    html += `<div class="edit-section">
+      <div class="edit-section-title" onclick="toggleEditSection(this)">
+        <span>📷 图片管理</span><span class="toggle-icon">▸</span>
+      </div>
+      <div class="edit-section-body">${photoHtml}</div>
+    </div>`;
+  }
+
+  html += `<div class="edit-modal-actions">
+    <button class="btn btn-cancel" onclick="closeEdit()">取消</button>
+    <button class="btn btn-save" onclick="saveEdit('${s.id}')">💾 保存修改</button>
+  </div>`;
+
+  return html;
+}
+
+async function saveEdit(id) {
+  const btn = document.querySelector('.btn-save');
+  btn.disabled = true;
+  btn.textContent = '保存中...';
+
+  const s = editingSubmission;
+  if (!s) return;
+
+  const data = {};
+
+  // 收集所有编辑字段
+  document.querySelectorAll('[id^="edit_"]').forEach(el => {
+    const field = el.id.replace('edit_', '');
+    if (el.tagName === 'SELECT') {
+      const v = el.value;
+      if (v === 'true') data[field] = true;
+      else if (v === 'false') data[field] = false;
+      else if (v === '') data[field] = null;
+      else data[field] = v;
+    } else {
+      const val = el.value.trim();
+      // 判断原值是否是数组
+      if (Array.isArray(s[field])) {
+        data[field] = val ? val.split(/[、,，]/).map(v => v.trim()).filter(Boolean) : [];
+      } else if (field === 'age' || field === 'children_age' || field === 'living_guest_count') {
+        data[field] = val ? parseInt(val) : null;
+      } else {
+        data[field] = val || null;
+      }
+    }
+  });
+
+  // 保留已更新过的图片数组
+  if (s._broughtPhotos !== undefined) data.brought_items_photos = s._broughtPhotos;
+  if (s._refPhotos !== undefined) data.reference_photos = s._refPhotos;
+
+  try {
+    await supabaseUpdate(id, data);
+    showToast('✅ 保存成功！');
+    closeEdit();
+    await loadData();
+  } catch (err) {
+    console.error('Save error:', err);
+    showToast('保存失败，请重试');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '💾 保存修改';
+  }
+}
+
+async function removeEditPhoto(submissionId, field, index) {
+  if (!editingSubmission) return;
+
+  // 初始化副本
+  if (field === 'brought_items_photos') {
+    if (!editingSubmission._broughtPhotos) editingSubmission._broughtPhotos = [...(editingSubmission.brought_items_photos || [])];
+    editingSubmission._broughtPhotos.splice(index, 1);
+    // 更新UI
+    const container = document.getElementById('editBroughtPhotos');
+    if (container) {
+      container.querySelectorAll('.thumb-wrap')[index]?.remove();
+    }
+  } else {
+    if (!editingSubmission._refPhotos) editingSubmission._refPhotos = [...(editingSubmission.reference_photos || [])];
+    editingSubmission._refPhotos.splice(index, 1);
+    const container = document.getElementById('editRefPhotos');
+    if (container) {
+      container.querySelectorAll('.thumb-wrap')[index]?.remove();
+    }
+  }
+  showToast('已标记删除，保存后生效');
+}
+
+// ========== 删除功能 ==========
+function confirmDelete(id, name) {
+  pendingDeleteId = id;
+  document.getElementById('confirmDialog').style.display = 'flex';
+}
+
+function closeConfirm() {
+  pendingDeleteId = null;
+  document.getElementById('confirmDialog').style.display = 'none';
+}
+
+document.getElementById('confirmDialog').addEventListener('click', function(e) {
+  if (e.target === this) closeConfirm();
+});
+
+async function executeDelete() {
+  if (!pendingDeleteId) return;
+  const btn = document.getElementById('confirmDeleteBtn');
+  btn.disabled = true;
+  btn.textContent = '删除中...';
+
+  try {
+    await supabaseDelete(pendingDeleteId);
+    showToast('已删除');
+    closeConfirm();
+    await loadData();
+  } catch (err) {
+    console.error('Delete error:', err);
+    showToast('删除失败，请重试');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '确认删除';
+  }
 }
 
 // ========== Toast ==========
@@ -617,13 +1086,8 @@ function showToast(msg) {
 }
 
 // ========== 初始化 ==========
-// Supabase 异步加载完成后会自动调用 loadData() 和 setupRealtime()
-// 如果 CDN 超时（5秒后），显示离线状态
-setTimeout(function() {
-  if (!supabase) {
-    document.getElementById('submissionsGrid').innerHTML = '<div class="empty-state"><div class="icon">🔌</div><p>正在连接服务器...</p><p style="font-size:12px;margin-top:4px;">如果长时间无法连接，请检查网络后刷新页面</p></div>';
-  }
-}, 5000);
+loadData();
+setupPolling();
 </script>
 </body>
 </html>
