@@ -679,6 +679,16 @@ function renderCards(submissions) {
   }).join('');
 }
 
+// boolean 字段列表：即使未填也显示
+const booleanFields = new Set([
+  'living_dining_combined','living_no_tv_design','living_instruments',
+  'dining_tv','kitchen_open','master_reading','master_dressing_table',
+  'master_bathroom_grooming','master_bathtub','master_water_bar',
+  'children_fixed','children_growth_design','children_drawing_board',
+  'children_bookcase','study_open','balcony_enclosed',
+  'balcony_door_removed','existing_furniture'
+]);
+
 function renderDetail(s) {
   const sections = [
     { title: '一、客户基本情况', fields: ['name','gender','age','occupation','renovation_address','house_area','residents','residents_other','pets','pets_other'] },
@@ -696,7 +706,8 @@ function renderDetail(s) {
     let secHtml = '';
     for (const field of sec.fields) {
       const val = s[field];
-      if (val === null || val === undefined || val === '' || (Array.isArray(val) && val.length === 0)) continue;
+      // boolean 字段总是显示，其他字段跳过空值
+      if (!booleanFields.has(field) && (val === null || val === undefined || val === '' || (Array.isArray(val) && val.length === 0))) continue;
       hasContent = true;
       const label = fieldLabels[field] || field;
       secHtml += `<div class="detail-row"><span class="detail-label">${label}</span><span class="detail-value">${formatValue(field, val)}</span></div>`;
@@ -720,8 +731,9 @@ function renderDetail(s) {
 }
 
 function formatValue(field, val) {
-  if (val === true) return '是';
-  if (val === false) return '否';
+  if (val === true) return '<span style="color:#7C9A6E;">是</span>';
+  if (val === false) return '<span style="color:#C55555;">否</span>';
+  if (val === null && booleanFields.has(field)) return '<span style="color:#AAA;">未填</span>';
   if (Array.isArray(val)) {
     return `<div class="detail-tags">${val.map(v => `<span class="detail-tag">${v}</span>`).join('')}</div>`;
   }
