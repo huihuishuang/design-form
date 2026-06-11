@@ -171,23 +171,14 @@ body {
 .card-body { display: none; padding: 0 18px 18px; border-top: 1px solid var(--border); }
 .card-body.open { display: block; }
 
-.detail-section {
-  margin-top: 20px;
-  background: #FAFAF8;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 16px;
-}
+.detail-section { margin-top: 16px; }
 .detail-section h4 {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
-  color: #5C4A3A;
-  margin-bottom: 12px;
-  padding-bottom: 8px;
-  border-bottom: 2px solid var(--accent);
-  display: flex;
-  align-items: center;
-  gap: 6px;
+  color: var(--accent);
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
 }
 .detail-row {
   display: flex;
@@ -679,16 +670,6 @@ function renderCards(submissions) {
   }).join('');
 }
 
-// boolean 字段列表
-const booleanFields = new Set([
-  'living_dining_combined','living_no_tv_design','living_instruments',
-  'dining_tv','kitchen_open','master_reading','master_dressing_table',
-  'master_bathroom_grooming','master_bathtub','master_water_bar',
-  'children_fixed','children_growth_design','children_drawing_board',
-  'children_bookcase','study_open','balcony_enclosed',
-  'balcony_door_removed','existing_furniture'
-]);
-
 function renderDetail(s) {
   const sections = [
     { title: '一、客户基本情况', fields: ['name','gender','age','occupation','renovation_address','house_area','residents','residents_other','pets','pets_other'] },
@@ -702,13 +683,18 @@ function renderDetail(s) {
 
   let html = '';
   for (const sec of sections) {
+    let hasContent = false;
     let secHtml = '';
     for (const field of sec.fields) {
       const val = s[field];
+      if (val === null || val === undefined || val === '' || (Array.isArray(val) && val.length === 0)) continue;
+      hasContent = true;
       const label = fieldLabels[field] || field;
       secHtml += `<div class="detail-row"><span class="detail-label">${label}</span><span class="detail-value">${formatValue(field, val)}</span></div>`;
     }
-    html += `<div class="detail-section"><h4>${sec.title}</h4>${secHtml}</div>`;
+    if (hasContent) {
+      html += `<div class="detail-section"><h4>${sec.title}</h4>${secHtml}</div>`;
+    }
   }
 
   // Photos
@@ -725,13 +711,9 @@ function renderDetail(s) {
 }
 
 function formatValue(field, val) {
-  // boolean: 兼容 true/false 和字符串
-  if (val === true || val === 'true') return '<span style="color:#7C9A6E;">是</span>';
-  if (val === false || val === 'false') return '<span style="color:#C55555;">否</span>';
-  // 空值统一显示"未填"
-  if (val === null || val === undefined || val === '') return '<span style="color:#AAA;">未填</span>';
+  if (val === true) return '是';
+  if (val === false) return '否';
   if (Array.isArray(val)) {
-    if (val.length === 0) return '<span style="color:#AAA;">未填</span>';
     return `<div class="detail-tags">${val.map(v => `<span class="detail-tag">${v}</span>`).join('')}</div>`;
   }
   if (field === 'created_at') {
