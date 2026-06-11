@@ -639,7 +639,7 @@ function renderCards(submissions) {
       year: 'numeric', month: '2-digit', day: '2-digit',
       hour: '2-digit', minute: '2-digit'
     });
-    const styleText = (s.style_preferences || []).join('、') || '未填写';
+    const styleText = (Array.isArray(s.style_preferences) ? s.style_preferences.join('、') : s.style_preferences) || '未填写';
     const bedroomText = s.bedroom_count || '-';
 
     return `
