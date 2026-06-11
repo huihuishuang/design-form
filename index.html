@@ -355,11 +355,11 @@ async function supabaseUpload(bucket, fileName, file) {
 // ========== 表单数据 ==========
 let formData = {
   // 上传的图片文件
-  brought_items_photos_files: [],
-  reference_photos_files: [],
+  brought_items_files: [],
+  reference_files: [],
   // 预览 URL
-  brought_items_photos_preview: [],
-  reference_photos_preview: []
+  brought_items_preview: [],
+  reference_preview: []
 };
 let currentStep = 0;
 const totalSteps = 7;
