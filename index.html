@@ -319,27 +319,38 @@ input[type="file"] { display: none; }
 
 <script>
 // ========== Supabase 配置 ==========
+// 直接调用 REST API，不依赖 CDN，国内可用
 const SUPABASE_URL = 'https://xxudurgiwtgsxrprnlht.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_IMGPsOn6Dcqlo6SFa8ArEw_3a7mWJnv';
-let supabase = null;
 
-// 异步加载 Supabase SDK，不阻塞表单
-(function loadSupabase() {
-  var s = document.createElement('script');
-  s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
-  s.onload = function() {
-    try {
-      supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-      console.log('Supabase 已连接');
-    } catch(e) {
-      console.warn('Supabase 初始化失败:', e);
-    }
-  };
-  s.onerror = function() {
-    console.warn('Supabase CDN 加载失败，表单仍可正常使用，但提交功能暂不可用');
-  };
-  document.head.appendChild(s);
-})();
+// 插入一条数据到 submissions 表
+async function supabaseInsert(table, row) {
+  const res = await fetch(SUPABASE_URL + '/rest/v1/' + table, {
+    method: 'POST',
+    headers: {
+      'apikey': SUPABASE_ANON_KEY,
+      'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=minimal'
+    },
+    body: JSON.stringify(row)
+  });
+  if (!res.ok) throw new Error('提交失败: ' + res.status + ' ' + (await res.text()));
+  return true;
+}
+
+// 上传文件到 Storage
+async function supabaseUpload(bucket, fileName, file) {
+  const res = await fetch(SUPABASE_URL + '/storage/v1/object/' + bucket + '/' + fileName, {
+    method: 'POST',
+    headers: {
+      'Authorization': 'Bearer ' + SUPABASE_ANON_KEY
+    },
+    body: file
+  });
+  if (!res.ok) throw new Error('上传失败: ' + res.status);
+  return SUPABASE_URL + '/storage/v1/object/public/' + bucket + '/' + fileName;
+}
 
 // ========== 表单数据 ==========
 let formData = {
@@ -389,6 +400,14 @@ function renderForm() {
             <label class="label">职业</label>
             <input class="input" id="occupation" placeholder="请输入职业">
           </div>
+        </div>
+        <div class="field">
+          <label class="label">装修地址</label>
+          <input class="input" id="renovation_address" placeholder="请输入装修房屋地址">
+        </div>
+        <div class="field" style="margin-bottom:0">
+          <label class="label">房屋面积</label>
+          <input class="input" id="house_area" placeholder="请输入面积（㎡）">
         </div>
       </div>
 
@@ -449,17 +468,17 @@ function renderForm() {
       </div>
 
       <div class="card">
-        <div class="card-title"><span class="icon">🎨</span>风格意向（可多选）</div>
-        <div class="tag-group" data-field="style_preferences">
-          <span class="tag" data-value="现代" onclick="toggleTag(this)">现代</span>
-          <span class="tag" data-value="新中式" onclick="toggleTag(this)">新中式</span>
-          <span class="tag" data-value="极简" onclick="toggleTag(this)">极简</span>
-          <span class="tag" data-value="美式" onclick="toggleTag(this)">美式</span>
-          <span class="tag" data-value="意式" onclick="toggleTag(this)">意式</span>
-          <span class="tag" data-value="轻法式" onclick="toggleTag(this)">轻法式</span>
-          <span class="tag" data-value="奶油风" onclick="toggleTag(this)">奶油风</span>
-          <span class="tag" data-value="中古风" onclick="toggleTag(this)">中古风</span>
-          <span class="tag" data-value="日式" onclick="toggleTag(this)">日式</span>
+        <div class="card-title"><span class="icon">🎨</span>风格意向</div>
+        <div class="tag-group">
+          <span class="tag radio" data-field="style_preferences" data-value="现代" onclick="selectOne(this)">现代</span>
+          <span class="tag radio" data-field="style_preferences" data-value="新中式" onclick="selectOne(this)">新中式</span>
+          <span class="tag radio" data-field="style_preferences" data-value="极简" onclick="selectOne(this)">极简</span>
+          <span class="tag radio" data-field="style_preferences" data-value="美式" onclick="selectOne(this)">美式</span>
+          <span class="tag radio" data-field="style_preferences" data-value="意式" onclick="selectOne(this)">意式</span>
+          <span class="tag radio" data-field="style_preferences" data-value="轻法式" onclick="selectOne(this)">轻法式</span>
+          <span class="tag radio" data-field="style_preferences" data-value="奶油风" onclick="selectOne(this)">奶油风</span>
+          <span class="tag radio" data-field="style_preferences" data-value="中古风" onclick="selectOne(this)">中古风</span>
+          <span class="tag radio" data-field="style_preferences" data-value="日式" onclick="selectOne(this)">日式</span>
         </div>
         <div class="field" style="margin-top:8px;margin-bottom:0">
           <input class="input" id="style_other" placeholder="其他风格（请填写）">
@@ -483,12 +502,12 @@ function renderForm() {
     <!-- Step 3: 舒适家居系统 -->
     <div class="step" data-step="2">
       <div class="card">
-        <div class="card-title"><span class="icon">🧱</span>墙面材质喜好（可多选）</div>
-        <div class="tag-group" data-field="wall_materials">
-          <span class="tag" data-value="乳胶漆" onclick="toggleTag(this)">乳胶漆</span>
-          <span class="tag" data-value="艺术涂料" onclick="toggleTag(this)">艺术涂料</span>
-          <span class="tag" data-value="墙纸墙布" onclick="toggleTag(this)">墙纸墙布</span>
-          <span class="tag" data-value="微水泥" onclick="toggleTag(this)">微水泥</span>
+        <div class="card-title"><span class="icon">🧱</span>墙面材质喜好</div>
+        <div class="tag-group">
+          <span class="tag radio" data-field="wall_materials" data-value="乳胶漆" onclick="selectOne(this)">乳胶漆</span>
+          <span class="tag radio" data-field="wall_materials" data-value="艺术涂料" onclick="selectOne(this)">艺术涂料</span>
+          <span class="tag radio" data-field="wall_materials" data-value="墙纸墙布" onclick="selectOne(this)">墙纸墙布</span>
+          <span class="tag radio" data-field="wall_materials" data-value="微水泥" onclick="selectOne(this)">微水泥</span>
         </div>
         <div class="field" style="margin-top:8px;margin-bottom:0">
           <input class="input" id="wall_materials_other" placeholder="其他墙面材质">
@@ -534,19 +553,20 @@ function renderForm() {
         <div class="tag-group">
           <span class="tag radio" data-field="ventilation" data-value="全房新风系统" onclick="selectOne(this)">全房新风系统</span>
           <span class="tag radio" data-field="ventilation" data-value="主要空间新风系统" onclick="selectOne(this)">主要空间新风系统</span>
-          <span class="tag radio" data-field="ventilation" data-value="否" onclick="selectOne(this)">否</span>
+          <span class="tag radio" data-field="ventilation" data-value="不需要" onclick="selectOne(this)">不需要</span>
         </div>
       </div>
 
       <div class="card">
-        <div class="card-title"><span class="icon">💧</span>水处理系统（可多选）</div>
-        <div class="tag-group" data-field="water_treatment">
-          <span class="tag" data-value="净水器" onclick="toggleTag(this)">净水器</span>
-          <span class="tag" data-value="前置过滤" onclick="toggleTag(this)">前置过滤</span>
-          <span class="tag" data-value="直饮机" onclick="toggleTag(this)">直饮机</span>
-          <span class="tag" data-value="中央净水系统" onclick="toggleTag(this)">中央净水系统</span>
-          <span class="tag" data-value="中央软水系统" onclick="toggleTag(this)">中央软水系统</span>
-          <span class="tag" data-value="中央纯水系统" onclick="toggleTag(this)">中央纯水系统</span>
+        <div class="card-title"><span class="icon">💧</span>水处理系统</div>
+        <div class="tag-group">
+          <span class="tag radio" data-field="water_treatment" data-value="净水器" onclick="selectOne(this)">净水器</span>
+          <span class="tag radio" data-field="water_treatment" data-value="前置过滤" onclick="selectOne(this)">前置过滤</span>
+          <span class="tag radio" data-field="water_treatment" data-value="直饮机" onclick="selectOne(this)">直饮机</span>
+          <span class="tag radio" data-field="water_treatment" data-value="中央净水系统" onclick="selectOne(this)">中央净水系统</span>
+          <span class="tag radio" data-field="water_treatment" data-value="中央软水系统" onclick="selectOne(this)">中央软水系统</span>
+          <span class="tag radio" data-field="water_treatment" data-value="中央纯水系统" onclick="selectOne(this)">中央纯水系统</span>
+          <span class="tag radio" data-field="water_treatment" data-value="不需要" onclick="selectOne(this)">不需要</span>
         </div>
       </div>
 
@@ -586,7 +606,7 @@ function renderForm() {
           </div>
         </div>
         <div class="field" style="margin-bottom:0">
-          <label class="label">是否介意入门能够直观全室</label>
+          <label class="label">是否介意入户能够直观全室</label>
           <div class="tag-group">
             <span class="tag radio" data-field="entryway_privacy" data-value="介意" onclick="selectOne(this)">介意</span>
             <span class="tag radio" data-field="entryway_privacy" data-value="无所谓" onclick="selectOne(this)">无所谓</span>
@@ -742,6 +762,7 @@ function renderForm() {
             <span class="tag radio" data-field="master_bed_style" data-value="悬浮床（无床头）" onclick="selectOne(this)">悬浮床(无床头)</span>
             <span class="tag radio" data-field="master_bed_style" data-value="软包床头" onclick="selectOne(this)">软包床头</span>
             <span class="tag radio" data-field="master_bed_style" data-value="落地式" onclick="selectOne(this)">落地式</span>
+            <span class="tag radio" data-field="master_bed_style" data-value="实木床头" onclick="selectOne(this)">实木床头</span>
           </div>
         </div>
         <div class="field">
@@ -803,11 +824,11 @@ function renderForm() {
         <div class="card-title"><span class="icon">🛌</span>次卧空间</div>
         <div class="field">
           <label class="label">房间的使用功能</label>
-          <div class="tag-group">
-            <span class="tag radio" data-field="guest_function" data-value="临时客房" onclick="selectOne(this)">临时客房</span>
-            <span class="tag radio" data-field="guest_function" data-value="老人" onclick="selectOne(this)">老人</span>
-            <span class="tag radio" data-field="guest_function" data-value="子女房" onclick="selectOne(this)">子女房</span>
-            <span class="tag radio" data-field="guest_function" data-value="保姆" onclick="selectOne(this)">保姆</span>
+          <div class="tag-group" data-field="guest_function">
+            <span class="tag" data-value="临时客房" onclick="toggleTag(this)">临时客房</span>
+            <span class="tag" data-value="老人" onclick="toggleTag(this)">老人</span>
+            <span class="tag" data-value="子女房" onclick="toggleTag(this)">子女房</span>
+            <span class="tag" data-value="保姆" onclick="toggleTag(this)">保姆</span>
           </div>
         </div>
         <div class="field" style="margin-bottom:0">
@@ -1054,7 +1075,7 @@ function updateUI() {
   btnNext.style.display = currentStep === totalSteps - 1 ? 'none' : '';
   btnSubmit.style.display = currentStep === totalSteps - 1 ? '' : 'none';
 
-  document.getElementById('formContainer').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function collectCurrentStep() {
@@ -1120,6 +1141,8 @@ function collectAllData() {
     gender: formData.gender || null,
     age: formData.age ? parseInt(formData.age) : (document.getElementById('age')?.value ? parseInt(document.getElementById('age').value) : null),
     occupation: formData.occupation || document.getElementById('occupation')?.value || null,
+    renovation_address: formData.renovation_address || document.getElementById('renovation_address')?.value || null,
+    house_area: formData.house_area || document.getElementById('house_area')?.value || null,
     residents: formData.residents || [],
     residents_other: formData.residents_other || null,
     pets: formData.pets || [],
@@ -1128,17 +1151,17 @@ function collectAllData() {
     bedroom_count_other: formData.bedroom_count_other || null,
     non_essential_spaces: formData.non_essential_spaces || [],
     non_essential_spaces_other: formData.non_essential_spaces_other || null,
-    style_preferences: formData.style_preferences || [],
+    style_preferences: formData.style_preferences || null,
     style_other: formData.style_other || null,
     color_scheme: formData.color_scheme ? [formData.color_scheme] : [],
     color_scheme_other: formData.color_scheme_other || null,
-    wall_materials: formData.wall_materials || [],
+    wall_materials: formData.wall_materials || null,
     wall_materials_other: formData.wall_materials_other || null,
     floor_material: formData.floor_material || null,
     cleaning_systems: formData.cleaning_systems || [],
     ac_heating: formData.ac_heating || [],
     ventilation: formData.ventilation || null,
-    water_treatment: formData.water_treatment || [],
+    water_treatment: formData.water_treatment || null,
     smart_home: formData.smart_home || [],
     entryway_functions: formData.entryway_functions || [],
     entryway_functions_other: formData.entryway_functions_other || null,
@@ -1171,7 +1194,7 @@ function collectAllData() {
     master_av: formData.master_av || [],
     master_av_other: formData.master_av_other || null,
     master_water_bar: formData.master_water_bar === 'true' ? true : formData.master_water_bar === 'false' ? false : null,
-    guest_function: formData.guest_function || null,
+    guest_function: formData.guest_function || [],
     guest_furniture: formData.guest_furniture || [],
     children_fixed: formData.children_fixed === 'true' ? true : formData.children_fixed === 'false' ? false : null,
     children_gender: formData.children_gender || null,
@@ -1197,14 +1220,15 @@ function collectAllData() {
 
 // ========== 上传图片到 Supabase Storage ==========
 async function uploadImages(files, bucket, folder) {
-  if (!supabase) { console.warn('Supabase 未初始化'); return []; }
   const urls = [];
   for (const file of files) {
     const fileName = folder + '/' + Date.now() + '_' + Math.random().toString(36).slice(2, 8) + '_' + file.name;
-    const { data, error } = await supabase.storage.from(bucket).upload(fileName, file);
-    if (error) { console.error('Upload error:', error); continue; }
-    const { data: publicData } = supabase.storage.from(bucket).getPublicUrl(fileName);
-    urls.push(publicData.publicUrl);
+    try {
+      const url = await supabaseUpload(bucket, fileName, file);
+      urls.push(url);
+    } catch(e) {
+      console.error('Upload error:', e);
+    }
   }
   return urls;
 }
@@ -1236,9 +1260,7 @@ async function submitForm() {
     data.brought_items_photos = broughtUrls;
     data.reference_photos = refUrls;
 
-    if (!supabase) { showToast('数据库未连接，请检查配置'); btn.disabled = false; btn.textContent = '提交需求表'; return; }
-    const { error } = await supabase.from('submissions').insert([data]);
-    if (error) throw error;
+    await supabaseInsert('submissions', data);
 
     // 显示成功页
     document.getElementById('formContainer').innerHTML = `
