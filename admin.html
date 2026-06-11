@@ -171,14 +171,23 @@ body {
 .card-body { display: none; padding: 0 18px 18px; border-top: 1px solid var(--border); }
 .card-body.open { display: block; }
 
-.detail-section { margin-top: 16px; }
+.detail-section {
+  margin-top: 20px;
+  background: #FAFAF8;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+}
 .detail-section h4 {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
-  color: var(--accent);
-  margin-bottom: 8px;
-  padding-bottom: 6px;
-  border-bottom: 1px solid var(--border);
+  color: #5C4A3A;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--accent);
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 .detail-row {
   display: flex;
