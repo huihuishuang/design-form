@@ -344,11 +344,12 @@ async function supabaseUpload(bucket, fileName, file) {
   const res = await fetch(SUPABASE_URL + '/storage/v1/object/' + bucket + '/' + fileName, {
     method: 'POST',
     headers: {
+      'apikey': SUPABASE_ANON_KEY,
       'Authorization': 'Bearer ' + SUPABASE_ANON_KEY
     },
     body: file
   });
-  if (!res.ok) throw new Error('上传失败: ' + res.status);
+  if (!res.ok) throw new Error('上传失败: ' + res.status + ' ' + (await res.text()));
   return SUPABASE_URL + '/storage/v1/object/public/' + bucket + '/' + fileName;
 }
 
